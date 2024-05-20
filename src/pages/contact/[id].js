@@ -1,86 +1,44 @@
 import { useRouter } from 'next/router';
+import { useParams } from 'next/navigation';
 import Navbar from '../../app/components/Navbar';
 import BackgroundBoxes from '../../app/components/BackgroundBoxes';
 import EmployeeGrid from '../../app/components/EmployeeGrid';
 import "../../app/globals.css";
 import localImg from '../../app/imagesMidlertidig/øyvind-haugen.png';
 import TransitionLine from '../../app/components/TransitionLine';
-import Footer from '../../app/components/Footer';
+// import Footer from '../../app/components/Footer';
+import { getCache } from '../../app/cache';
 
-const employees = [
-    {
-        name: 'Øyvind Haugen',
-        title: 'Daglig leder / CEO',
-        phone: '+47 41 28 28 78',
-        email: 'oyvind@karriereflyt.no',
-        // img: 'https://onedrive.live.com/embed?resid=4FD8064FD150BC9C%21547462&authkey=%21ALrmYuoavoKnmP4&width=256',
-        facebook: '',
-        linkedin: '',
-        stikkord: [
-            'Profesjonell',
-            'Hyggelig',
-            'Effektiv',
-        ],
-        bio: 'Øyvind Haugen er daglig leder i Karriereflyt AS. Han har lang erfaring fra rekrutteringsbransjen og har hjulpet mange kunder med å finne den rette kandidaten til stillingen. Øyvind er en hyggelig og profesjonell person som alltid er effektiv i sitt arbeid.',
-        bioShort: 'Øyvind Haugen er en erfaren leder og grunnlegger av Karriereflyt, et selskap dedikert til å hjelpe enkeltpersoner med å navigere gjennom karriereveien sin.',
-    },
-    {
-        name: 'Finn Christian Aakre',
-        title: 'Rekrutteringsrådgiver',
-        phone: '+47 46 84 91 97',
-        email: 'finn@karriereflyt.no',
-        img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Face-smile.svg/768px-Face-smile.svg.png',
-        facebook: '',
-        linkedin: '',
-    },
-    {
-        name: 'Andrine Sanden',
-        title: 'Rekrutteringsrådgiver',
-        phone: '+47 99 49 66 35',
-        email: 'andrine@karriereflyt.no',
-        img: 'https://onedrive.live.com/embed?resid=4FD8064FD150BC9C%21547466&authkey=%21AEtsTInMxK8m00E&width=256',
-        facebook: '',
-        linkedin: '',
-    },
-    {
-        name: 'Hanna Arnesen',
-        title: 'Rekrutteringsrådgiver',
-        phone: '+47 47 84 88 62',
-        email: 'hanna@karriereflyt.no',
-        img: 'https://onedrive.live.com/embed?resid=4FD8064FD150BC9C%21547464&authkey=%21AOhOwwGCS6LEqNM&width=256',
-        facebook: '',
-        linkedin: '',
-    },
-    {
-        name: 'Sofie Malsen',
-        title: 'Rekrutteringsrådgiver',
-        phone: '+47 41 28 28 78',
-        email: 'sofie@karriereflyt.no',
-        img: 'https://onedrive.live.com/embed?resid=4FD8064FD150BC9C%21547460&authkey=%21AP45A98V2fZd1_s&width=256',
-        facebook: '',
-        linkedin: '',
-    },
-    {
-        name: 'Connie Haugen',
-        title: 'Styremedlem / Rådgiver',
-        phone: '',
-        email: 'connie@karriereflyt.no',
-        img: 'https://onedrive.live.com/embed?resid=4FD8064FD150BC9C%21547465&authkey=%21AOZmY5z_nDKRTN0&width=256',
-        facebook: '',
-        linkedin: '',
-    },
-];
 
-const MemberDetailPage = () => {
+
+
+export async function getServerSideProps(context) {
+    const { id } = context.params;
+    return {
+        props: {
+            id, // Pass the id to the component
+        },
+    };
+}
+
+const MemberDetailPage = ({ id, employees }) => {
+
     const router = useRouter();
-    const { id } = router.query;
 
-    // Find the member using the id parameter
+    const contactsData = getCache('contactsData');
+    console.log("CONTACT DATA MOTHERFUCKER " + contactsData)
+
+    if (router.isFallback) {
+        return <div>Loading...</div>;
+    }
+
+    // Find the member using the id
     const member = employees.find(m => m.name === decodeURIComponent(id));
 
     if (!member) {
         return <p>Member not found</p>;
     }
+
 
     return (
         <body>
@@ -184,11 +142,11 @@ const MemberDetailPage = () => {
                     <div className="max-w-7xl mx-auto px-4 md:p-8">
                         <h1 className="text-center light mb-8">Lær mer om gjengen vår</h1>
                         <div className="w-full">
-                            <EmployeeGrid employees={employees} exclude={member.name} backgroundColor='gray' foregroundColor='dark' border='dark' />
+                            {/* <EmployeeGrid employees={employees} exclude={member.name} backgroundColor='gray' foregroundColor='dark' border='dark' /> */}
                         </div>
                     </div>
                 </div>
-                <Footer transitionLine={false} />
+                {/* <Footer transitionLine={false} /> */}
             </div>
         </body>
     );

@@ -1,5 +1,6 @@
 import { EmployeeGrid, ContactForm, ContactInfo, Footer, TransitionLine } from "../../components/index";
 import dynamic from 'next/dynamic';
+import { getCache, setCache } from '../../cache';
 import { client } from '../../sanity';
 
 const EVENTS_QUERY = `*[_type == "contact"][0]{
@@ -26,14 +27,26 @@ const LocationWithNoSSR = dynamic(() => import('../../components/Location'), {
   ssr: false,
 });
 
+async function getContactsData() {
+  let contactsData = getCache('contactsData');
+  console.log("FUCKING contactsData:", contactsData);
+  if (!contactsData) {
+    contactsData = await client.fetch(EVENTS_QUERY);
+    setCache('contactsData', contactsData);
+  }
+
+  return contactsData;
+}
 
 export default async function Page() {
+  await getContactsData('contactsData');
   console.log("Sanity client:", client);
   if (!client) {
     throw new Error("Sanity client is not initialized");
   }
   const events = await client.fetch(EVENTS_QUERY);
-  console.log(events);
+  // console.log(events);
+
   return (
     <div className="mx-auto w-full backdrop-blur-xl pt-4 ">
       <div className="max-w-7xl mx-auto px-4 md:px-8 md:mb-16 mb-6" >
@@ -45,7 +58,7 @@ export default async function Page() {
         <TransitionLine />
       </div>
       <div className="bg-slate-gray-flat w-full">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 p-6 flex md:flex-row-reverse flex-col md:gap-16 gap-8">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 p-6 flex md:flex-row-reverse flex-col gap-8">
           <div className="w-full">
             <ContactInfo address={events.contactAddress} phoneNumber={events.contactPhoneNumber} email={events.contactEmail} />
             <LocationWithNoSSR address={events.contactAddress} />
